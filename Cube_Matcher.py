@@ -6,11 +6,20 @@ class Axis:
     def __init__(self, vector):
         self.unitVector = vector
 
+    # 0 < depth < cubeSize
+    # angle : pi/2, pi, -pi/2
     def rotate(self, depth, angle):
         for p in planeList:
             if p.normalVector == self.unitVector:
                 p.rotate(angle)
-        pass
+            if p.upperVector == self.unitVector:
+                pass
+            if dotProduct(p.normalVector, p.upperVector) == self.unitVector:
+                pass
+            if list(map(lambda x: -x, p.upperVector)) == self.unitVector:
+                pass
+            if dotProduct(p.upperVector, p.normalVector) == self.unitVector:
+                pass
 
 
 class Plane:
@@ -18,15 +27,16 @@ class Plane:
         self.normalVector = normalVector
         self.upperVector = upperVector
         # self.state = [[0 for i in range(cubeSize)] for i in range(cubeSize)]
-        self.state = [[1, 0, 0, 0], [2, 0, 0, 0], [3, 0, 0, 0], [4, 0, 0, 0]]
+        self.state = [[1, 1, 0, 0], [2, 2, 0, 0], [3, 3, 0, 0], [4, 4, 0, 0]]
 
     def rotate(self, angle):
         tempState = copy.deepcopy(self.state)
         trans = (cubeSize - 1) / 2
         for column in range(cubeSize):
             for row in range(cubeSize):
-                newRow = int((row - trans) * cos(angle) + (column - trans) * sin(angle) + trans + 0.5)
-                newColumn = int(-(row - trans) * sin(angle) + (column - trans) * cos(angle) + trans + 0.5)
+                rotated = rotateVector(row - trans, column - trans, angle)
+                newRow = int(rotated[0] + trans + 0.5)
+                newColumn = int(rotated[1] + trans + 0.5)
                 self.state[newColumn][newRow] = tempState[column][row]
 
     def printState(self):
@@ -46,6 +56,14 @@ class UnitVector:
         self.my = [0, -1, 0]
         self.z = [0, 0, 1]
         self.mz = [0, 0, -1]
+
+
+def dotProduct(v1, v2):
+    return [v1[1] * v2[2] - v1[2] * v2[1], v1[2] * v2[0] - v1[0] * v2[2], v1[0] * v2[1] - v1[1] * v2[0]]
+
+
+def rotateVector(x, y, angle):
+    return [x * cos(angle) + y * sin(angle), -x * sin(angle) + y * cos(angle)]
 
 
 def printCubeState():
@@ -74,4 +92,6 @@ if __name__ == "__main__":
         plane.printState()
 
     plane1.rotate(pi/2)
+    plane1.printState()
+    axisX.rotate(1, pi / 2)
     plane1.printState()
