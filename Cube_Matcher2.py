@@ -1,3 +1,7 @@
+import pygame
+pygame.init()
+
+
 class Piece:
     # location: [x, y, z], colorState = [x, y, z, -x, -y, -z]
     def __init__(self, location):
@@ -31,7 +35,7 @@ class Piece:
         axisFactor = [[i, j] for i, j in enumerate(self.colorState) if i % 3 == rotateAxis.index(1)]
         for i, factor in enumerate(axisFactor):
             del(temp[factor[0] - i])
-        temp = list(map(lambda x: temp[(x + direction - rotateAxis[1] * 2) % 4], range(4)))
+        temp = list(map(lambda x: temp[(x - direction + rotateAxis[1] * 2) % 4], range(4)))
         for factor in axisFactor:
             temp.insert(factor[0], factor[1])
         self.colorState = temp
@@ -47,7 +51,10 @@ def getPlaneArray():
 
 
 def rotate(axis, target, direction):
-    pass
+    for piece in pieces:
+        if piece.location[axis.index(1)] in target:
+            piece.rotateLocation(axis, direction)
+            piece.rotateColorState(axis, direction)
 
 
 if __name__ == "__main__":
@@ -59,17 +66,12 @@ if __name__ == "__main__":
         print("color state:", i.colorState)
         print("=" * 50)
 
-    print(pieces[0].location, pieces[0].colorState)
-    pieces[0].rotateLocation([1, 0, 0], 1)
-    pieces[0].rotateColorState([1, 0, 0], 1)
-    print(pieces[0].location, pieces[0].colorState)
-    pieces[0].rotateLocation([1, 0, 0], 1)
-    pieces[0].rotateColorState([1, 0, 0], 1)
-    print(pieces[0].location, pieces[0].colorState)
-    pieces[0].rotateLocation([1, 0, 0], 1)
-    pieces[0].rotateColorState([1, 0, 0], 1)
-    print(pieces[0].location, pieces[0].colorState)
-    pieces[0].rotateLocation([1, 0, 0], 1)
-    pieces[0].rotateColorState([1, 0, 0], 1)
-    print(pieces[0].location, pieces[0].colorState)
+    print(getPlaneArray())
+    rotate([1, 0, 0], [0], 1)
+    print(getPlaneArray())
 
+    # print(getPlaneArray())
+    # print(pieces[0].location, pieces[0].colorState)
+    # pieces[0].rotateLocation([1, 0, 0], 1)
+    # pieces[0].rotateColorState([1, 0, 0], 1)
+    # print(pieces[0].location, pieces[0].colorState)
