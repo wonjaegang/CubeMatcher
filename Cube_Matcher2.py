@@ -1,17 +1,32 @@
 import pygame
 pygame.init()
 
+# GUI 관련 변수
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 204, 0)
+ORANGE = (255, 102, 0)
+WHITE = (255, 255, 255)
+
+cubeSize = 2
+pieceSize = 50
+screen = pygame.display.set_mode((pieceSize * cubeSize * 7, pieceSize * cubeSize * 5))
+screen.fill(WHITE)
+clock = pygame.time.Clock()
+
 
 class Piece:
     # location: [x, y, z], colorState = [x, y, z, -x, -y, -z]
     def __init__(self, location):
         self.location = location
-        self.colorState = ['R' if location[0] == cubeSize - 1 else 'E',
-                           'B' if location[1] == cubeSize - 1 else 'E',
-                           'W' if location[2] == cubeSize - 1 else 'E',
-                           'O' if location[0] == 0 else 'E',
-                           'G' if location[1] == 0 else 'E',
-                           'Y' if location[2] == 0 else 'E']
+        self.colorState = [RED if location[0] == cubeSize - 1 else 'E',
+                           BLUE if location[1] == cubeSize - 1 else 'E',
+                           WHITE if location[2] == cubeSize - 1 else 'E',
+                           ORANGE if location[0] == 0 else 'E',
+                           GREEN if location[1] == 0 else 'E',
+                           YELLOW if location[2] == 0 else 'E']
 
     # 큐브 회전 시 조각의 위치변환
     # 회전 축과 평행한 요소는 고정, 나머지 요소들을 회전축이 원점이 오도록 이동, 회전변환 후 다시 원위치로 이동
@@ -41,6 +56,14 @@ class Piece:
         self.colorState = temp
 
 
+# Piece 객체 리스트의 객체들을 위치순서대로 정렬
+def sortPieces():
+    pieces.sort(key=lambda x:
+                x.location[2] * cubeSize * cubeSize +
+                x.location[1] * cubeSize +
+                x.location[0])
+
+
 # Piece 객체리스트로 부터 큐브의 면 정도 추출
 def getPlaneArray():
     planeArray = []
@@ -50,6 +73,7 @@ def getPlaneArray():
     return planeArray
 
 
+# 큐브 회전함수
 def rotate(axis, target, direction):
     for piece in pieces:
         if piece.location[axis.index(1)] in target:
@@ -57,21 +81,77 @@ def rotate(axis, target, direction):
             piece.rotateColorState(axis, direction)
 
 
-if __name__ == "__main__":
-    cubeSize = 3
+# GUI 에 큐브의 색 배열 출력
+def displayGUI():
+    planeArray = getPlaneArray()
+    for i, color in enumerate(planeArray[0]):
+        start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 2]
+        pygame.draw.rect(screen, color, [[start[0] + (i % cubeSize) * pieceSize,
+                                          start[1] - (i // cubeSize - 1) * pieceSize],
+                                         [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[start[0] + (i % cubeSize) * pieceSize,
+                                          start[1] - (i // cubeSize - 1) * pieceSize],
+                                         [pieceSize, pieceSize]], 1)
+    for i, color in enumerate(planeArray[1]):
+        start = [pieceSize * cubeSize * 3, pieceSize * cubeSize * 2]
+        pygame.draw.rect(screen, color, [[start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize,
+                                          start[1] - (i // cubeSize - 1) * pieceSize],
+                                         [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize,
+                                          start[1] - (i // cubeSize - 1) * pieceSize],
+                                         [pieceSize, pieceSize]], 1)
+    for i, color in enumerate(planeArray[2]):
+        start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 1]
+        pygame.draw.rect(screen, color, [[start[0] + (i // cubeSize) * pieceSize,
+                                          start[1] + (i % cubeSize) * pieceSize],
+                                         [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[start[0] + (i // cubeSize) * pieceSize,
+                                          start[1] + (i % cubeSize) * pieceSize],
+                                         [pieceSize, pieceSize]], 1)
+    for i, color in enumerate(planeArray[3]):
+        start = [pieceSize * cubeSize * 4, pieceSize * cubeSize * 2]
+        pygame.draw.rect(screen, color, [[start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize,
+                                          start[1] - (i // cubeSize - 1) * pieceSize],
+                                         [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize,
+                                          start[1] - (i // cubeSize - 1) * pieceSize],
+                                         [pieceSize, pieceSize]], 1)
+    for i, color in enumerate(planeArray[4]):
+        start = [pieceSize * cubeSize * 1, pieceSize * cubeSize * 2]
+        pygame.draw.rect(screen, color, [[start[0] + (i % cubeSize) * pieceSize,
+                                          start[1] - (i // cubeSize - 1) * pieceSize],
+                                         [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[start[0] + (i % cubeSize) * pieceSize,
+                                          start[1] - (i // cubeSize - 1) * pieceSize],
+                                         [pieceSize, pieceSize]], 1)
+    for i, color in enumerate(planeArray[5]):
+        start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 3]
+        pygame.draw.rect(screen, color, [[start[0] + (i // cubeSize) * pieceSize,
+                                          start[1] + ((cubeSize - 1) - i % cubeSize) * pieceSize],
+                                         [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[start[0] + (i // cubeSize) * pieceSize,
+                                          start[1] + ((cubeSize - 1) - i % cubeSize) * pieceSize],
+                                         [pieceSize, pieceSize]], 1)
 
-    pieces = [Piece([i, j, k]) for i in range(cubeSize) for j in range(cubeSize) for k in range(cubeSize)]
+
+if __name__ == "__main__":
+    pieces = [Piece([i, j, k]) for k in range(cubeSize) for j in range(cubeSize) for i in range(cubeSize)]
     for i in pieces:
         print("location:", i.location)
         print("color state:", i.colorState)
         print("=" * 50)
-
-    print(getPlaneArray())
-    rotate([1, 0, 0], [0], 1)
     print(getPlaneArray())
 
-    # print(getPlaneArray())
-    # print(pieces[0].location, pieces[0].colorState)
-    # pieces[0].rotateLocation([1, 0, 0], 1)
-    # pieces[0].rotateColorState([1, 0, 0], 1)
-    # print(pieces[0].location, pieces[0].colorState)
+    rotate([0, 1, 0], [0], -1)
+    sortPieces()
+
+    for i in pieces:
+        print("location:", i.location)
+        print("color state:", i.colorState)
+        print("=" * 50)
+    print(getPlaneArray())
+
+    displayGUI()
+    pygame.display.update()
+    while True:
+        pygame.time.wait(50)
