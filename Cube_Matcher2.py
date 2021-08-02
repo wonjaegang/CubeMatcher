@@ -10,7 +10,7 @@ YELLOW = (255, 204, 0)
 ORANGE = (255, 102, 0)
 WHITE = (255, 255, 255)
 
-cubeSize = 2
+cubeSize = 3
 pieceSize = 50
 screen = pygame.display.set_mode((pieceSize * cubeSize * 7, pieceSize * cubeSize * 5))
 screen.fill(WHITE)
@@ -87,13 +87,13 @@ def displayGUI():
     for i, color in enumerate(planeArray[0]):
         start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 2]
         left = start[0] + (i % cubeSize) * pieceSize
-        top = start[1] - (i // cubeSize - 1) * pieceSize
+        top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
         pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
         pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[1]):
         start = [pieceSize * cubeSize * 3 + 5, pieceSize * cubeSize * 2]
         left = start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize
-        top = start[1] - (i // cubeSize - 1) * pieceSize
+        top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
         pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
         pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[2]):
@@ -105,13 +105,13 @@ def displayGUI():
     for i, color in enumerate(planeArray[3]):
         start = [pieceSize * cubeSize * 4 + 10, pieceSize * cubeSize * 2]
         left = start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize
-        top = start[1] - (i // cubeSize - 1) * pieceSize
+        top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
         pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
         pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[4]):
         start = [pieceSize * cubeSize * 1 - 5, pieceSize * cubeSize * 2]
         left = start[0] + (i % cubeSize) * pieceSize
-        top = start[1] - (i // cubeSize - 1) * pieceSize
+        top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
         pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
         pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[5]):
