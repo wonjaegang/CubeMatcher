@@ -86,72 +86,63 @@ def displayGUI():
     planeArray = getPlaneArray()
     for i, color in enumerate(planeArray[0]):
         start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 2]
-        pygame.draw.rect(screen, color, [[start[0] + (i % cubeSize) * pieceSize,
-                                          start[1] - (i // cubeSize - 1) * pieceSize],
-                                         [pieceSize, pieceSize]])
-        pygame.draw.rect(screen, BLACK, [[start[0] + (i % cubeSize) * pieceSize,
-                                          start[1] - (i // cubeSize - 1) * pieceSize],
-                                         [pieceSize, pieceSize]], 1)
+        left = start[0] + (i % cubeSize) * pieceSize
+        top = start[1] - (i // cubeSize - 1) * pieceSize
+        pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[1]):
-        start = [pieceSize * cubeSize * 3, pieceSize * cubeSize * 2]
-        pygame.draw.rect(screen, color, [[start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize,
-                                          start[1] - (i // cubeSize - 1) * pieceSize],
-                                         [pieceSize, pieceSize]])
-        pygame.draw.rect(screen, BLACK, [[start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize,
-                                          start[1] - (i // cubeSize - 1) * pieceSize],
-                                         [pieceSize, pieceSize]], 1)
+        start = [pieceSize * cubeSize * 3 + 5, pieceSize * cubeSize * 2]
+        left = start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize
+        top = start[1] - (i // cubeSize - 1) * pieceSize
+        pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[2]):
-        start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 1]
-        pygame.draw.rect(screen, color, [[start[0] + (i // cubeSize) * pieceSize,
-                                          start[1] + (i % cubeSize) * pieceSize],
-                                         [pieceSize, pieceSize]])
-        pygame.draw.rect(screen, BLACK, [[start[0] + (i // cubeSize) * pieceSize,
-                                          start[1] + (i % cubeSize) * pieceSize],
-                                         [pieceSize, pieceSize]], 1)
+        start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 1 - 5]
+        left = start[0] + (i // cubeSize) * pieceSize
+        top = start[1] + (i % cubeSize) * pieceSize
+        pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[3]):
-        start = [pieceSize * cubeSize * 4, pieceSize * cubeSize * 2]
-        pygame.draw.rect(screen, color, [[start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize,
-                                          start[1] - (i // cubeSize - 1) * pieceSize],
-                                         [pieceSize, pieceSize]])
-        pygame.draw.rect(screen, BLACK, [[start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize,
-                                          start[1] - (i // cubeSize - 1) * pieceSize],
-                                         [pieceSize, pieceSize]], 1)
+        start = [pieceSize * cubeSize * 4 + 10, pieceSize * cubeSize * 2]
+        left = start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize
+        top = start[1] - (i // cubeSize - 1) * pieceSize
+        pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[4]):
-        start = [pieceSize * cubeSize * 1, pieceSize * cubeSize * 2]
-        pygame.draw.rect(screen, color, [[start[0] + (i % cubeSize) * pieceSize,
-                                          start[1] - (i // cubeSize - 1) * pieceSize],
-                                         [pieceSize, pieceSize]])
-        pygame.draw.rect(screen, BLACK, [[start[0] + (i % cubeSize) * pieceSize,
-                                          start[1] - (i // cubeSize - 1) * pieceSize],
-                                         [pieceSize, pieceSize]], 1)
+        start = [pieceSize * cubeSize * 1 - 5, pieceSize * cubeSize * 2]
+        left = start[0] + (i % cubeSize) * pieceSize
+        top = start[1] - (i // cubeSize - 1) * pieceSize
+        pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[5]):
-        start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 3]
-        pygame.draw.rect(screen, color, [[start[0] + (i // cubeSize) * pieceSize,
-                                          start[1] + ((cubeSize - 1) - i % cubeSize) * pieceSize],
-                                         [pieceSize, pieceSize]])
-        pygame.draw.rect(screen, BLACK, [[start[0] + (i // cubeSize) * pieceSize,
-                                          start[1] + ((cubeSize - 1) - i % cubeSize) * pieceSize],
-                                         [pieceSize, pieceSize]], 1)
+        start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 3 + 5]
+        left = start[0] + (i // cubeSize) * pieceSize
+        top = start[1] + ((cubeSize - 1) - i % cubeSize) * pieceSize
+        pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+        pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
 
 
 if __name__ == "__main__":
     pieces = [Piece([i, j, k]) for k in range(cubeSize) for j in range(cubeSize) for i in range(cubeSize)]
-    for i in pieces:
-        print("location:", i.location)
-        print("color state:", i.colorState)
-        print("=" * 50)
+
     print(getPlaneArray())
-
-    rotate([0, 1, 0], [0], -1)
-    sortPieces()
-
-    for i in pieces:
-        print("location:", i.location)
-        print("color state:", i.colorState)
-        print("=" * 50)
-    print(getPlaneArray())
-
     displayGUI()
     pygame.display.update()
+    pygame.time.wait(300)
+
     while True:
-        pygame.time.wait(50)
+        rotate([1, 0, 0], [1], 1)
+        sortPieces()
+
+        print(getPlaneArray())
+        displayGUI()
+        pygame.display.update()
+        pygame.time.wait(300)
+
+        rotate([0, 1, 0], [1], 1)
+        sortPieces()
+
+        print(getPlaneArray())
+        displayGUI()
+        pygame.display.update()
+        pygame.time.wait(300)
