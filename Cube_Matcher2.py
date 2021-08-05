@@ -1,5 +1,10 @@
+import random
 import pygame
 pygame.init()
+
+
+# 큐브의 크기
+cubeSize = 2
 
 # GUI 관련 변수
 BLACK = (0, 0, 0)
@@ -10,7 +15,6 @@ YELLOW = (255, 204, 0)
 ORANGE = (255, 102, 0)
 WHITE = (255, 255, 255)
 
-cubeSize = 3
 pieceSize = 50
 screen = pygame.display.set_mode((pieceSize * cubeSize * 7, pieceSize * cubeSize * 5))
 screen.fill(WHITE)
@@ -76,9 +80,20 @@ def getPlaneArray():
 # 큐브 회전함수
 def rotate(axis, target, direction):
     for piece in pieces:
-        if piece.location[axis.index(1)] in target:
+        if piece.location[axis.index(1)] == target:
             piece.rotateLocation(axis, direction)
             piece.rotateColorState(axis, direction)
+
+
+# 큐브를 무작위로 섞는 함수
+def mixCube():
+    mixCount = cubeSize * 20
+    for _ in range(mixCount):
+        axis = [0, 0]
+        axis.insert(random.choice(range(3)), 1)
+        rotate(axis, random.choice(range(cubeSize)), random.choice([1, -1]))
+        displayGUI()
+        pygame.time.wait(10)
 
 
 # GUI 에 큐브의 색 배열 출력
@@ -121,28 +136,30 @@ def displayGUI():
         pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
         pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
 
+    pygame.display.update()
+
 
 if __name__ == "__main__":
     pieces = [Piece([i, j, k]) for k in range(cubeSize) for j in range(cubeSize) for i in range(cubeSize)]
 
     print(getPlaneArray())
     displayGUI()
-    pygame.display.update()
     pygame.time.wait(300)
 
+    mixCube()
+    pygame.time.wait(10)
+
     while True:
-        rotate([1, 0, 0], [1], 1)
+        rotate([1, 0, 0], 1, 1)
         sortPieces()
 
-        print(getPlaneArray())
+        # print(getPlaneArray())
         displayGUI()
-        pygame.display.update()
-        pygame.time.wait(300)
+        pygame.time.wait(1000)
 
-        rotate([0, 1, 0], [1], 1)
+        rotate([0, 1, 0], 1, 1)
         sortPieces()
 
-        print(getPlaneArray())
+        # print(getPlaneArray())
         displayGUI()
-        pygame.display.update()
-        pygame.time.wait(300)
+        pygame.time.wait(1000)
