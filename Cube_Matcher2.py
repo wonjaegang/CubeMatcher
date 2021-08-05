@@ -68,6 +68,7 @@ class PushButton(pygame.Rect):
 
     def show(self):
         pygame.draw.rect(screen, self.color, [[self.left, self.top], [self.width, self.height]])
+        pygame.display.update()
 
     def changeColor(self):
         colorList = [RED, BLUE, WHITE, ORANGE, GREEN, YELLOW]
@@ -164,26 +165,29 @@ if __name__ == "__main__":
     # mixCube()
     # pygame.time.wait(10)
 
-    # User input
+    # User starting input
     startingButtons = [PushButton([gridSize * 1, gridSize * 2], [gridSize * 2, gridSize], BLUE),
                        PushButton([gridSize * 4, gridSize * 2], [gridSize * 2, gridSize], BLUE)]
     for startingButton in startingButtons:
         startingButton.show()
-    pygame.display.update()
-    pygame.time.wait(1000)
 
     running = True
+    selecting = True
     while running:
-        # for event in pygame.event.get():
-        #     if event.type == pygame.MOUSEBUTTONDOWN:
-        #         print("누름")
-        #         for startingButton in startingButtons:
-        #             if startingButton.collidepoint(pygame.mouse.get_pos()):
-        #                 startingButton.changeColor()
-        #     elif event.type == pygame.MOUSEBUTTONUP:
-        #         print("뗌")
-        #     elif event.type == pygame.QUIT:
-        #         running = False
+        # Starting loop
+        while selecting:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Mix cube randomly
+                    if startingButtons[0].collidepoint(pygame.mouse.get_pos()):
+                        screen.fill(WHITE)
+                        selecting = False
+                        mixCube()
+                    # User directly set cube color state
+                    elif startingButtons[1].collidepoint(pygame.mouse.get_pos()):
+                        screen.fill(WHITE)
+                        selecting = False
+                        pass
 
         rotate([1, 0, 0], 1, 1)
         sortPieces()
