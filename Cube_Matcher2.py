@@ -20,6 +20,7 @@ gridSize = pieceSize * cubeSize
 screen = pygame.display.set_mode((gridSize * 7, gridSize * 5))
 screen.fill(WHITE)
 clock = pygame.time.Clock()
+font = pygame.font.SysFont('Arial', 25)
 
 
 class Piece:
@@ -68,6 +69,12 @@ class PushButton(pygame.Rect):
 
     def show(self):
         pygame.draw.rect(screen, self.color, [[self.left, self.top], [self.width, self.height]])
+        pygame.display.update()
+
+    def addText(self, displayText):
+        text = font.render(displayText, True, BLACK)
+        text_rect = text.get_rect(center=(self.left + self.width // 2, self.top + self.height // 2))
+        screen.blit(text, text_rect)
         pygame.display.update()
 
     def changeColor(self):
@@ -161,15 +168,13 @@ if __name__ == "__main__":
     displayGUI()
     pygame.time.wait(300)
 
-    # # Mixing Cube
-    # mixCube()
-    # pygame.time.wait(10)
-
     # User starting input
-    startingButtons = [PushButton([gridSize * 1, gridSize * 2], [gridSize * 2, gridSize], BLUE),
-                       PushButton([gridSize * 4, gridSize * 2], [gridSize * 2, gridSize], BLUE)]
-    for startingButton in startingButtons:
-        startingButton.show()
+    startingButtons = [PushButton([gridSize * 1, gridSize * 2], [gridSize * 2, gridSize], GREY),
+                       PushButton([gridSize * 4, gridSize * 2], [gridSize * 2, gridSize], GREY)]
+    startingButtons[0].show()
+    startingButtons[0].addText("Mix Randomly")
+    startingButtons[1].show()
+    startingButtons[1].addText("User Input")
 
     running = True
     selecting = True
