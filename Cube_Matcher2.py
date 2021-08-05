@@ -2,7 +2,6 @@ import random
 import pygame
 pygame.init()
 
-
 # 큐브의 크기
 cubeSize = 2
 
@@ -14,9 +13,11 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 204, 0)
 ORANGE = (255, 102, 0)
 WHITE = (255, 255, 255)
+GREY = (128, 128, 128)
 
 pieceSize = 50
-screen = pygame.display.set_mode((pieceSize * cubeSize * 7, pieceSize * cubeSize * 5))
+gridSize = pieceSize * cubeSize
+screen = pygame.display.set_mode((gridSize * 7, gridSize * 5))
 screen.fill(WHITE)
 clock = pygame.time.Clock()
 
@@ -60,6 +61,19 @@ class Piece:
         self.colorState = temp
 
 
+class PushButton(pygame.Rect):
+    def __init__(self, pos, size, color):
+        super().__init__(pos, size)
+        self.color = color
+
+    def show(self):
+        pygame.draw.rect(screen, self.color, [[self.left, self.top], [self.width, self.height]])
+
+    def changeColor(self):
+        colorList = [RED, BLUE, WHITE, ORANGE, GREEN, YELLOW]
+        self.color = colorList[colorList.index(self.color) - 1]
+
+
 # Piece 객체 리스트의 객체들을 위치순서대로 정렬
 def sortPieces():
     pieces.sort(key=lambda x:
@@ -68,7 +82,7 @@ def sortPieces():
                 x.location[0])
 
 
-# Piece 객체리스트로 부터 큐브의 면 정도 추출
+# Piece 객체리스트로 부터 큐브의 면 색 배열 정보 추출
 def getPlaneArray():
     planeArray = []
     for direction in range(6):
@@ -83,6 +97,7 @@ def rotate(axis, target, direction):
         if piece.location[axis.index(1)] == target:
             piece.rotateLocation(axis, direction)
             piece.rotateColorState(axis, direction)
+    print("Rotation - Axis:", axis, "Target:", target, "Direction,", direction)
 
 
 # 큐브를 무작위로 섞는 함수
@@ -100,37 +115,37 @@ def mixCube():
 def displayGUI():
     planeArray = getPlaneArray()
     for i, color in enumerate(planeArray[0]):
-        start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 2]
+        start = [gridSize * 2, gridSize * 2]
         left = start[0] + (i % cubeSize) * pieceSize
         top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
         pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
         pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[1]):
-        start = [pieceSize * cubeSize * 3 + 5, pieceSize * cubeSize * 2]
+        start = [gridSize * 3 + 5, gridSize * 2]
         left = start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize
         top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
         pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
         pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[2]):
-        start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 1 - 5]
+        start = [gridSize * 2, gridSize * 1 - 5]
         left = start[0] + (i // cubeSize) * pieceSize
         top = start[1] + (i % cubeSize) * pieceSize
         pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
         pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[3]):
-        start = [pieceSize * cubeSize * 4 + 10, pieceSize * cubeSize * 2]
+        start = [gridSize * 4 + 10, gridSize * 2]
         left = start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize
         top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
         pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
         pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[4]):
-        start = [pieceSize * cubeSize * 1 - 5, pieceSize * cubeSize * 2]
+        start = [gridSize * 1 - 5, gridSize * 2]
         left = start[0] + (i % cubeSize) * pieceSize
         top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
         pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
         pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
     for i, color in enumerate(planeArray[5]):
-        start = [pieceSize * cubeSize * 2, pieceSize * cubeSize * 3 + 5]
+        start = [gridSize * 2, gridSize * 3 + 5]
         left = start[0] + (i // cubeSize) * pieceSize
         top = start[1] + ((cubeSize - 1) - i % cubeSize) * pieceSize
         pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
@@ -140,26 +155,42 @@ def displayGUI():
 
 
 if __name__ == "__main__":
+    # Initializing Cube
     pieces = [Piece([i, j, k]) for k in range(cubeSize) for j in range(cubeSize) for i in range(cubeSize)]
-
-    print(getPlaneArray())
     displayGUI()
     pygame.time.wait(300)
 
-    mixCube()
-    pygame.time.wait(10)
+    # # Mixing Cube
+    # mixCube()
+    # pygame.time.wait(10)
 
-    while True:
+    # User input
+    startingButtons = [PushButton([gridSize * 1, gridSize * 2], [gridSize * 2, gridSize], BLUE),
+                       PushButton([gridSize * 4, gridSize * 2], [gridSize * 2, gridSize], BLUE)]
+    for startingButton in startingButtons:
+        startingButton.show()
+    pygame.display.update()
+    pygame.time.wait(1000)
+
+    running = True
+    while running:
+        # for event in pygame.event.get():
+        #     if event.type == pygame.MOUSEBUTTONDOWN:
+        #         print("누름")
+        #         for startingButton in startingButtons:
+        #             if startingButton.collidepoint(pygame.mouse.get_pos()):
+        #                 startingButton.changeColor()
+        #     elif event.type == pygame.MOUSEBUTTONUP:
+        #         print("뗌")
+        #     elif event.type == pygame.QUIT:
+        #         running = False
+
         rotate([1, 0, 0], 1, 1)
         sortPieces()
-
-        # print(getPlaneArray())
         displayGUI()
-        pygame.time.wait(1000)
+        pygame.time.wait(300)
 
         rotate([0, 1, 0], 1, 1)
         sortPieces()
-
-        # print(getPlaneArray())
         displayGUI()
-        pygame.time.wait(1000)
+        pygame.time.wait(300)
