@@ -3,7 +3,7 @@ import pygame
 pygame.init()
 
 # 큐브의 크기
-cubeSize = 3
+cubeSize = 2
 
 # GUI 관련 변수
 BLACK = (0, 0, 0)
@@ -82,6 +82,18 @@ class PushButton(pygame.Rect):
     def changeColor(self):
         colorList = [RED, BLUE, WHITE, ORANGE, GREEN, YELLOW]
         self.color = colorList[colorList.index(self.color) - 1]
+        self.show()
+
+
+class AI:
+    def __init__(self):
+        pass
+
+    def selectRotation(self):
+        axis = [1, 0, 0]
+        target = 0
+        direction = 1
+        return axis, target, direction
 
 
 # Piece 객체 리스트의 객체들을 위치순서대로 정렬
@@ -196,7 +208,7 @@ def displayGUI():
 
 
 if __name__ == "__main__":
-    # Initializing Cube
+    # Initializing the cube
     pieces = [Piece([i, j, k]) for k in range(cubeSize) for j in range(cubeSize) for i in range(cubeSize)]
     inputButtonArray = [[] for _ in range(6)]
 
@@ -217,12 +229,12 @@ if __name__ == "__main__":
         while selecting:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    # Mix cube randomly
+                    # Mix the cube randomly
                     if startingButtons[0].collidepoint(pygame.mouse.get_pos()):
                         screen.fill(WHITE)
                         mixCube()
                         selecting = False
-                    # User directly set cube color state
+                    # User directly set the cube color state
                     elif startingButtons[1].collidepoint(pygame.mouse.get_pos()):
                         screen.fill(WHITE)
 
@@ -240,7 +252,6 @@ if __name__ == "__main__":
                                         for button in planeButton:
                                             if button.collidepoint(pygame.mouse.get_pos()):
                                                 button.changeColor()
-                                                button.show()
                                     if confirmButton.collidepoint(pygame.mouse.get_pos()):
                                         for i, planeButton in enumerate(inputButtonArray):
                                             for button in planeButton:
@@ -250,12 +261,9 @@ if __name__ == "__main__":
                                         screen.fill(WHITE)
                                         displayGUI()
 
-        # rotate([1, 0, 0], 2, 1)
-        # sortPieces()
-        # displayGUI()
-        # pygame.time.wait(300)
-
-        # rotate([0, 1, 0], 1, 1)
-        # sortPieces()
-        # displayGUI()
-        # pygame.time.wait(300)
+        ai_1 = AI()
+        nextRotate = ai_1.selectRotation()
+        rotate(*nextRotate)
+        sortPieces()
+        displayGUI()
+        pygame.time.wait(300)
