@@ -208,11 +208,11 @@ def displayGUI():
 
 
 if __name__ == "__main__":
-    # Initializing the cube
+    # 큐브 초기화
     pieces = [Piece([i, j, k]) for k in range(cubeSize) for j in range(cubeSize) for i in range(cubeSize)]
     inputButtonArray = [[] for _ in range(6)]
 
-    # User starting input
+    # 사용자 입력 관련 객체 및 GUI
     startingButtons = [PushButton([gridSize * 1, gridSize * 2], [gridSize * 2, gridSize], GREY),
                        PushButton([gridSize * 4, gridSize * 2], [gridSize * 2, gridSize], GREY)]
     startingButtons[0].show()
@@ -220,12 +220,16 @@ if __name__ == "__main__":
     startingButtons[1].show()
     startingButtons[1].addText("User Input")
 
-    # Main loop
+    rotationCountDisplay = PushButton([gridSize * 4, gridSize * 4], [gridSize * 2, gridSize // 2], WHITE)
+
+    # 메인 루프
     running = True
     selecting = True
     userInput = False
+    rotationCount = 0
+    ai_1 = AI()
     while running:
-        # Starting loop
+        # 사용자 입력 루프
         while selecting:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -261,9 +265,13 @@ if __name__ == "__main__":
                                         screen.fill(WHITE)
                                         displayGUI()
 
-        ai_1 = AI()
+        # AI 에게서 다음 회전정보를 받아서 큐브를 회전
         nextRotate = ai_1.selectRotation()
         rotate(*nextRotate)
         sortPieces()
+        rotationCount += 1
+
+        rotationCountDisplay.show()
+        rotationCountDisplay.addText("Rotate: %d" % rotationCount)
         displayGUI()
-        pygame.time.wait(300)
+        pygame.time.wait(500)
