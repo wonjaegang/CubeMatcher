@@ -23,6 +23,118 @@ font = pygame.font.SysFont('Arial', 12 * cubeSize, True)
 screen.fill(WHITE)
 
 
+class Cube:
+    def __init__(self):
+        self.pieces = [Piece([i, j, k]) for k in range(cubeSize) for j in range(cubeSize) for i in range(cubeSize)]
+
+    def initializeCube(self):
+        pass
+
+    # Piece 객체 리스트의 객체들을 위치순서대로 정렬
+    def sortPieces(self):
+        self.pieces.sort(key=lambda x: x.location[2] * cubeSize * cubeSize + x.location[1] * cubeSize + x.location[0])
+
+    # Piece 객체리스트로 부터 큐브의 면 색 배열 정보 추출
+    def getPlaneArray(self):
+        planeArray = []
+        for direction in range(6):
+            planeArray.append([piece.colorState[direction] for piece in self.pieces
+                               if piece.location[direction % 3] == (cubeSize - 1) * (1 - direction // 3)])
+        return planeArray
+
+    # 큐브 회전함수
+    def rotate(self, axis, target, direction):
+        for piece in self.pieces:
+            if piece.location[axis.index(1)] == target:
+                piece.rotateLocation(axis, direction)
+                piece.rotateColorState(axis, direction)
+        print("Rotation - Axis:", axis, "Target:", target, "Direction,", direction)
+
+    # 큐브를 무작위로 섞는 함수
+    def mixCube(self):
+        mixCount = cubeSize * 20
+        for _ in range(mixCount):
+            axis = [0, 0]
+            axis.insert(random.choice(range(3)), 1)
+            self.rotate(axis, random.choice(range(cubeSize)), random.choice([1, -1]))
+            self.displayCube()
+            pygame.time.wait(10)
+
+    # GUI 에 큐브의 색 배열 출력
+    def displayCube(self):
+        planeArray = self.getPlaneArray()
+        for i, color in enumerate(planeArray[0]):
+            start = [gridSize * 2, gridSize * 2]
+            left = start[0] + (i % cubeSize) * pieceSize
+            top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
+            if userInput:
+                inputButtonArray[0].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
+                inputButtonArray[0][i].show()
+                inputButtonArray[0][i].allocatedPiece = self.pieces[cubeSize * (i + 1) - 1]
+            else:
+                pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+                pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
+        for i, color in enumerate(planeArray[1]):
+            start = [gridSize * 3 + 5, gridSize * 2]
+            left = start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize
+            top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
+            if userInput:
+                inputButtonArray[1].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
+                inputButtonArray[1][i].show()
+                inputButtonArray[1][i].allocatedPiece = \
+                    self.pieces[(i // cubeSize + 1) * cubeSize * cubeSize - (cubeSize - i % cubeSize)]
+            else:
+                pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+                pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
+        for i, color in enumerate(planeArray[2]):
+            start = [gridSize * 2, gridSize * 1 - 5]
+            left = start[0] + (i // cubeSize) * pieceSize
+            top = start[1] + (i % cubeSize) * pieceSize
+            if userInput:
+                inputButtonArray[2].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
+                inputButtonArray[2][i].show()
+                inputButtonArray[2][i].allocatedPiece = self.pieces[i + cubeSize * cubeSize * (cubeSize - 1)]
+            else:
+                pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+                pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
+        for i, color in enumerate(planeArray[3]):
+            start = [gridSize * 4 + 10, gridSize * 2]
+            left = start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize
+            top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
+            if userInput:
+                inputButtonArray[3].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
+                inputButtonArray[3][i].show()
+                inputButtonArray[3][i].allocatedPiece = self.pieces[i * cubeSize]
+            else:
+                pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+                pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
+        for i, color in enumerate(planeArray[4]):
+            start = [gridSize * 1 - 5, gridSize * 2]
+            left = start[0] + (i % cubeSize) * pieceSize
+            top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
+            if userInput:
+                inputButtonArray[4].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
+                inputButtonArray[4][i].show()
+                inputButtonArray[4][i].allocatedPiece = \
+                    self.pieces[(i // cubeSize) * cubeSize * cubeSize + i % cubeSize]
+            else:
+                pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+                pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
+        for i, color in enumerate(planeArray[5]):
+            start = [gridSize * 2, gridSize * 3 + 5]
+            left = start[0] + (i // cubeSize) * pieceSize
+            top = start[1] + ((cubeSize - 1) - i % cubeSize) * pieceSize
+            if userInput:
+                inputButtonArray[5].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
+                inputButtonArray[5][i].show()
+                inputButtonArray[5][i].allocatedPiece = self.pieces[i]
+            else:
+                pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
+                pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
+
+        pygame.display.update()
+
+
 class Piece:
     # location: [x, y, z], colorState = [x, y, z, -x, -y, -z]
     def __init__(self, location):
@@ -90,126 +202,26 @@ class AI:
         pass
 
     def selectRotation(self):
+        # A* 알고리즘으로 먼저 구현해보자. 이후에 헤더파일로 떼어내자.
+
+        # virtualPieces = pieces.copy()
+        #
+        # colorList = [RED, BLUE, WHITE, ORANGE, GREEN, YELLOW]
+        # planArray = getPlaneArray()
+        # unmatched = 0
+        # for i, plane in enumerate(planArray):
+        #     unmatched += len(plane) - plane.count(colorList[i])
+        # print(unmatched)
+
         axis = [1, 0, 0]
-        target = 0
+        target = 1
         direction = 1
         return axis, target, direction
 
 
-# Piece 객체 리스트의 객체들을 위치순서대로 정렬
-def sortPieces():
-    pieces.sort(key=lambda x:
-                x.location[2] * cubeSize * cubeSize +
-                x.location[1] * cubeSize +
-                x.location[0])
-
-
-# Piece 객체리스트로 부터 큐브의 면 색 배열 정보 추출
-def getPlaneArray():
-    planeArray = []
-    for direction in range(6):
-        planeArray.append([piece.colorState[direction] for piece in pieces
-                           if piece.location[direction % 3] == (cubeSize - 1) * (1 - direction // 3)])
-    return planeArray
-
-
-# 큐브 회전함수
-def rotate(axis, target, direction):
-    for piece in pieces:
-        if piece.location[axis.index(1)] == target:
-            piece.rotateLocation(axis, direction)
-            piece.rotateColorState(axis, direction)
-    print("Rotation - Axis:", axis, "Target:", target, "Direction,", direction)
-
-
-# 큐브를 무작위로 섞는 함수
-def mixCube():
-    mixCount = cubeSize * 20
-    for _ in range(mixCount):
-        axis = [0, 0]
-        axis.insert(random.choice(range(3)), 1)
-        rotate(axis, random.choice(range(cubeSize)), random.choice([1, -1]))
-        displayGUI()
-        pygame.time.wait(10)
-
-
-# GUI 에 큐브의 색 배열 출력
-def displayGUI():
-    planeArray = getPlaneArray()
-    for i, color in enumerate(planeArray[0]):
-        start = [gridSize * 2, gridSize * 2]
-        left = start[0] + (i % cubeSize) * pieceSize
-        top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
-        if userInput:
-            inputButtonArray[0].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
-            inputButtonArray[0][i].show()
-            inputButtonArray[0][i].allocatedPiece = pieces[cubeSize * (i + 1) - 1]
-        else:
-            pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
-            pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
-    for i, color in enumerate(planeArray[1]):
-        start = [gridSize * 3 + 5, gridSize * 2]
-        left = start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize
-        top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
-        if userInput:
-            inputButtonArray[1].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
-            inputButtonArray[1][i].show()
-            inputButtonArray[1][i].allocatedPiece = \
-                pieces[(i // cubeSize + 1) * cubeSize * cubeSize - (cubeSize - i % cubeSize)]
-        else:
-            pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
-            pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
-    for i, color in enumerate(planeArray[2]):
-        start = [gridSize * 2, gridSize * 1 - 5]
-        left = start[0] + (i // cubeSize) * pieceSize
-        top = start[1] + (i % cubeSize) * pieceSize
-        if userInput:
-            inputButtonArray[2].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
-            inputButtonArray[2][i].show()
-            inputButtonArray[2][i].allocatedPiece = pieces[i + cubeSize * cubeSize * (cubeSize - 1)]
-        else:
-            pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
-            pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
-    for i, color in enumerate(planeArray[3]):
-        start = [gridSize * 4 + 10, gridSize * 2]
-        left = start[0] + ((cubeSize - 1) - i % cubeSize) * pieceSize
-        top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
-        if userInput:
-            inputButtonArray[3].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
-            inputButtonArray[3][i].show()
-            inputButtonArray[3][i].allocatedPiece = pieces[i * cubeSize]
-        else:
-            pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
-            pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
-    for i, color in enumerate(planeArray[4]):
-        start = [gridSize * 1 - 5, gridSize * 2]
-        left = start[0] + (i % cubeSize) * pieceSize
-        top = start[1] - (i // cubeSize - (cubeSize - 1)) * pieceSize
-        if userInput:
-            inputButtonArray[4].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
-            inputButtonArray[4][i].show()
-            inputButtonArray[4][i].allocatedPiece = pieces[(i // cubeSize) * cubeSize * cubeSize + i % cubeSize]
-        else:
-            pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
-            pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
-    for i, color in enumerate(planeArray[5]):
-        start = [gridSize * 2, gridSize * 3 + 5]
-        left = start[0] + (i // cubeSize) * pieceSize
-        top = start[1] + ((cubeSize - 1) - i % cubeSize) * pieceSize
-        if userInput:
-            inputButtonArray[5].append(PushButton([left, top], [pieceSize, pieceSize], WHITE))
-            inputButtonArray[5][i].show()
-            inputButtonArray[5][i].allocatedPiece = pieces[i]
-        else:
-            pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
-            pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
-
-    pygame.display.update()
-
-
 if __name__ == "__main__":
     # 큐브 초기화
-    pieces = [Piece([i, j, k]) for k in range(cubeSize) for j in range(cubeSize) for i in range(cubeSize)]
+    cube = Cube()
     inputButtonArray = [[] for _ in range(6)]
 
     # 사용자 입력 관련 객체 및 GUI
@@ -236,7 +248,7 @@ if __name__ == "__main__":
                     # Mix the cube randomly
                     if startingButtons[0].collidepoint(pygame.mouse.get_pos()):
                         screen.fill(WHITE)
-                        mixCube()
+                        cube.mixCube()
                         selecting = False
                     # User directly set the cube color state
                     elif startingButtons[1].collidepoint(pygame.mouse.get_pos()):
@@ -248,7 +260,7 @@ if __name__ == "__main__":
 
                         # User input loop: User clicks the pieces to change its color
                         userInput = True
-                        displayGUI()
+                        cube.displayCube()
                         while userInput:
                             for inputEvent in pygame.event.get():
                                 if inputEvent.type == pygame.MOUSEBUTTONDOWN:
@@ -257,21 +269,21 @@ if __name__ == "__main__":
                                             if button.collidepoint(pygame.mouse.get_pos()):
                                                 button.changeColor()
                                     if confirmButton.collidepoint(pygame.mouse.get_pos()):
-                                        for i, planeButton in enumerate(inputButtonArray):
+                                        for d, planeButton in enumerate(inputButtonArray):
                                             for button in planeButton:
-                                                button.allocatedPiece.colorState[i] = button.color
+                                                button.allocatedPiece.colorState[d] = button.color
                                         userInput = False
                                         selecting = False
                                         screen.fill(WHITE)
-                                        displayGUI()
+                                        cube.displayCube()
 
         # AI 에게서 다음 회전정보를 받아서 큐브를 회전
         nextRotate = ai_1.selectRotation()
-        rotate(*nextRotate)
-        sortPieces()
+        cube.rotate(*nextRotate)
+        cube.sortPieces()
         rotationCount += 1
 
         rotationCountDisplay.show()
         rotationCountDisplay.addText("Rotate: %d" % rotationCount)
-        displayGUI()
-        pygame.time.wait(500)
+        cube.displayCube()
+        pygame.time.wait(100)
