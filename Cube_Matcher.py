@@ -3,7 +3,7 @@ import pygame
 pygame.init()
 
 # 큐브의 크기
-cubeSize = 3
+cubeSize = 2
 
 # GUI 관련 변수
 BLACK = (0, 0, 0)
@@ -197,11 +197,12 @@ class AI:
     def __init__(self):
         self.virtualCube = Cube()
         self.virtualCube.pieces = cube.pieces.copy()
+        self.path = []
 
     def selectRotation(self):
         # A* 알고리즘으로 먼저 구현해보자. 이후에 헤더파일로 떼어내자.
-        first = True
-        lowestCost = 0
+        self.path.append(self.virtualCube.getPlaneArray())
+        lowestCost = float('inf')
         bestRotation = 0
         for axis in range(3):
             for target in range(cubeSize):
@@ -209,15 +210,10 @@ class AI:
                     rotation = [[1 if i == axis else 0 for i in range(3)], target, direction]
                     self.virtualCube.rotate(*rotation)
                     currentCost = self.calculateCost()
-                    if first:
-                        lowestCost = currentCost
-                        bestRotation = rotation
-                        first = False
-                    elif lowestCost > currentCost:
+                    if lowestCost > currentCost:
                         lowestCost = currentCost
                         bestRotation = rotation
                     self.virtualCube.inverseRotate(*rotation)
-
         print("Best Rotation:", bestRotation)
         print("Cost: %d" % lowestCost)
         print("=" * 50)
@@ -231,7 +227,8 @@ class AI:
         unmatched = 0
         for i, plane in enumerate(planArray):
             unmatched += len(plane) - plane.count(colorList[i])
-
+        if planArray in self.path:
+            return float('inf')
         return rotation + unmatched
 
 
@@ -318,4 +315,4 @@ if __name__ == "__main__":
         rotationCountDisplay.show()
         rotationCountDisplay.addText("Rotate: %d" % rotationCount)
         pygame.display.update()
-        pygame.time.wait(1000)
+        pygame.time.wait(300)
