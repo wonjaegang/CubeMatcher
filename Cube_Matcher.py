@@ -211,6 +211,15 @@ class AI:
     def selectRotation(self):
         # A* 알고리즘으로 먼저 구현해보자. 이후에 헤더파일로 떼어내자.
         self.path.append(self.virtualCube.getPlaneArray())
+
+        searched = self.searchPath(2)
+
+        print("Best Rotation:", searched[1])
+        print("Cost: %d" % searched[0])
+        print("=" * 50)
+        return searched[1]
+
+    def searchPath(self, lookahead):
         lowestCost = float('inf')
         bestRotation = 0
         for axis in range(3):
@@ -218,19 +227,24 @@ class AI:
                 for direction in [-1, 1]:
                     rotation = [[1 if i == axis else 0 for i in range(3)], target, direction]
                     self.virtualCube.rotate(*rotation)
-                    currentCost = self.calculateCost()
+                    if self.virtualCube.getPlaneArray() in self.path:
+                        self.virtualCube.inverseRotate(*rotation)
+                        continue
+
+                    if not lookahead:
+                        currentCost = self.calculateCost()
+                    else:
+                        currentCost = self.searchPath(lookahead - 1)[0]
+
                     if lowestCost > currentCost:
                         lowestCost = currentCost
                         bestRotation = rotation
                     self.virtualCube.inverseRotate(*rotation)
-        print("Best Rotation:", bestRotation)
-        print("Cost: %d" % lowestCost)
-        print("=" * 50)
-        return bestRotation
+        return lowestCost, bestRotation
 
     def calculateCost(self):
-        if self.virtualCube.getPlaneArray() in self.path:
-            return float('inf')
+        # if self.virtualCube.getPlaneArray() in self.path:
+        #     return float('inf')
         rotation = 0
         unmatched = self.virtualCube.countUnmatched()
         return rotation + unmatched
@@ -319,7 +333,7 @@ if __name__ == "__main__":
         rotationCountDisplay.show()
         rotationCountDisplay.addText("Rotate: %d" % rotationCount)
         pygame.display.update()
-        pygame.time.wait(50)
+        pygame.time.wait(0)
 
         # 큐브 맞추기 완료
         if not cube.countUnmatched():
