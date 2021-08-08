@@ -20,7 +20,6 @@ gridSize = pieceSize * cubeSize
 screen = pygame.display.set_mode((gridSize * 7, gridSize * 5))
 clock = pygame.time.Clock()
 font = pygame.font.SysFont('Arial', 12 * cubeSize, True)
-screen.fill(WHITE)
 
 
 class Cube:
@@ -58,10 +57,11 @@ class Cube:
             axis.insert(random.choice(range(3)), 1)
             self.rotate(axis, random.choice(range(cubeSize)), random.choice([1, -1]))
             self.displayCube()
+            pygame.display.update()
             pygame.time.wait(10)
 
     # GUI 에 큐브의 색 배열 출력
-    def displayCube(self):
+    def displayCube(self, userInput=None, inputButtonArray=None):
         planeArray = self.getPlaneArray()
         for i, color in enumerate(planeArray[0]):
             start = [gridSize * 2, gridSize * 2]
@@ -132,8 +132,6 @@ class Cube:
                 pygame.draw.rect(screen, color, [[left, top], [pieceSize, pieceSize]])
                 pygame.draw.rect(screen, BLACK, [[left, top], [pieceSize, pieceSize]], 1)
 
-        pygame.display.update()
-
 
 class Piece:
     # location: [x, y, z], colorState = [x, y, z, -x, -y, -z]
@@ -183,13 +181,11 @@ class PushButton(pygame.Rect):
     def show(self):
         pygame.draw.rect(screen, self.color, [[self.left, self.top], [self.width, self.height]])
         pygame.draw.rect(screen, BLACK, [[self.left, self.top], [self.width, self.height]], 1)
-        pygame.display.update()
 
     def addText(self, displayText):
         text = font.render(displayText, True, BLACK)
         text_rect = text.get_rect(center=(self.left + self.width // 2, self.top + self.height // 2))
         screen.blit(text, text_rect)
-        pygame.display.update()
 
     def changeColor(self):
         colorList = [RED, BLUE, WHITE, ORANGE, GREEN, YELLOW]
@@ -219,63 +215,77 @@ class AI:
         return axis, target, direction
 
 
+# 사용자로부터 큐브의 초기상태를 입력받음
+def getUserInput():
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # 큐브 무작위로 섞기
+            if startingButtons[0].collidepoint(pygame.mouse.get_pos()):
+                screen.fill(WHITE)
+                cube.mixCube()
+                return False
+            # 큐브의 색 배열을 사용자가 직접 입력
+            elif startingButtons[1].collidepoint(pygame.mouse.get_pos()):
+                inputButtonArray = [[] for _ in range(6)]
+                confirmButton = PushButton([gridSize * 5, gridSize * 4], [gridSize, gridSize // 2], GREY)
+
+                screen.fill(WHITE)
+                confirmButton.show()
+                confirmButton.addText("Confirm")
+                cube.displayCube(True, inputButtonArray)
+                pygame.display.update()
+
+                while True:
+                    if userInputDone(inputButtonArray, confirmButton):
+                        return False
+    return True
+
+
+# 클릭을 통해 사용자가 색 입력
+def userInputDone(inputButtonArray, confirmButton):
+    for inputEvent in pygame.event.get():
+        if inputEvent.type == pygame.MOUSEBUTTONDOWN:
+            for planeButton in inputButtonArray:
+                for button in planeButton:
+                    if button.collidepoint(pygame.mouse.get_pos()):
+                        button.changeColor()
+                        pygame.display.update()
+            if confirmButton.collidepoint(pygame.mouse.get_pos()):
+                for d, planeButton in enumerate(inputButtonArray):
+                    for button in planeButton:
+                        button.allocatedPiece.colorState[d] = button.color
+                screen.fill(WHITE)
+                cube.displayCube()
+                pygame.display.update()
+                return True
+    return False
+
+
 if __name__ == "__main__":
     # 큐브 초기화
     cube = Cube()
-    inputButtonArray = [[] for _ in range(6)]
 
-    # 사용자 입력 관련 객체 및 GUI
+    # 사용자 입력 관련 객체 및 GUI 초기화
     startingButtons = [PushButton([gridSize * 1, gridSize * 2], [gridSize * 2, gridSize], GREY),
                        PushButton([gridSize * 4, gridSize * 2], [gridSize * 2, gridSize], GREY)]
+    rotationCountDisplay = PushButton([gridSize * 4, gridSize * 4], [gridSize * 2, gridSize // 2], WHITE)
+
+    screen.fill(WHITE)
     startingButtons[0].show()
     startingButtons[0].addText("Mix Randomly")
     startingButtons[1].show()
     startingButtons[1].addText("User Input")
-
-    rotationCountDisplay = PushButton([gridSize * 4, gridSize * 4], [gridSize * 2, gridSize // 2], WHITE)
+    pygame.display.update()
 
     # 메인 루프
     running = True
     selecting = True
-    userInput = False
     rotationCount = 0
     ai_1 = AI()
     while running:
         # 사용자 입력 루프
         while selecting:
-            for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    # Mix the cube randomly
-                    if startingButtons[0].collidepoint(pygame.mouse.get_pos()):
-                        screen.fill(WHITE)
-                        cube.mixCube()
-                        selecting = False
-                    # User directly set the cube color state
-                    elif startingButtons[1].collidepoint(pygame.mouse.get_pos()):
-                        screen.fill(WHITE)
-
-                        confirmButton = PushButton([gridSize * 5, gridSize * 4], [gridSize, gridSize // 2], GREY)
-                        confirmButton.show()
-                        confirmButton.addText("Confirm")
-
-                        # User input loop: User clicks the pieces to change its color
-                        userInput = True
-                        cube.displayCube()
-                        while userInput:
-                            for inputEvent in pygame.event.get():
-                                if inputEvent.type == pygame.MOUSEBUTTONDOWN:
-                                    for planeButton in inputButtonArray:
-                                        for button in planeButton:
-                                            if button.collidepoint(pygame.mouse.get_pos()):
-                                                button.changeColor()
-                                    if confirmButton.collidepoint(pygame.mouse.get_pos()):
-                                        for d, planeButton in enumerate(inputButtonArray):
-                                            for button in planeButton:
-                                                button.allocatedPiece.colorState[d] = button.color
-                                        userInput = False
-                                        selecting = False
-                                        screen.fill(WHITE)
-                                        cube.displayCube()
+            selecting = getUserInput()
 
         # AI 에게서 다음 회전정보를 받아서 큐브를 회전
         nextRotate = ai_1.selectRotation()
@@ -283,7 +293,9 @@ if __name__ == "__main__":
         cube.sortPieces()
         rotationCount += 1
 
+        # 현재 큐브 상태 GUI 디스플레이
+        cube.displayCube()
         rotationCountDisplay.show()
         rotationCountDisplay.addText("Rotate: %d" % rotationCount)
-        cube.displayCube()
-        pygame.time.wait(100)
+        pygame.display.update()
+        pygame.time.wait(500)
