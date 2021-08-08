@@ -38,6 +38,15 @@ class Cube:
                                if piece.location[direction % 3] == (cubeSize - 1) * (1 - direction // 3)])
         return planeArray
 
+    # 맞춰지지 않은 색들의 수 계산
+    def countUnmatched(self):
+        colorList = [RED, BLUE, WHITE, ORANGE, GREEN, YELLOW]
+        planArray = self.getPlaneArray()
+        unmatched = 0
+        for i, plane in enumerate(planArray):
+            unmatched += len(plane) - plane.count(colorList[i])
+        return unmatched
+
     # 큐브 회전함수
     def rotate(self, axis, target, direction):
         for piece in self.pieces:
@@ -220,15 +229,10 @@ class AI:
         return bestRotation
 
     def calculateCost(self):
-        rotation = 0
-
-        colorList = [RED, BLUE, WHITE, ORANGE, GREEN, YELLOW]
-        planArray = self.virtualCube.getPlaneArray()
-        unmatched = 0
-        for i, plane in enumerate(planArray):
-            unmatched += len(plane) - plane.count(colorList[i])
-        if planArray in self.path:
+        if self.virtualCube.getPlaneArray() in self.path:
             return float('inf')
+        rotation = 0
+        unmatched = self.virtualCube.countUnmatched()
         return rotation + unmatched
 
 
@@ -315,4 +319,10 @@ if __name__ == "__main__":
         rotationCountDisplay.show()
         rotationCountDisplay.addText("Rotate: %d" % rotationCount)
         pygame.display.update()
-        pygame.time.wait(300)
+        pygame.time.wait(50)
+
+        # 큐브 맞추기 완료
+        if not cube.countUnmatched():
+            print("Cube Solved!!!")
+            while True:
+                pass
