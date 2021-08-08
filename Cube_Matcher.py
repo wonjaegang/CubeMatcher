@@ -3,7 +3,7 @@ import pygame
 pygame.init()
 
 # 큐브의 크기
-cubeSize = 2
+cubeSize = 3
 
 # GUI 관련 변수
 BLACK = (0, 0, 0)
@@ -26,9 +26,6 @@ class Cube:
     def __init__(self):
         self.pieces = [Piece([i, j, k]) for k in range(cubeSize) for j in range(cubeSize) for i in range(cubeSize)]
 
-    def initializeCube(self):
-        pass
-
     # Piece 객체 리스트의 객체들을 위치순서대로 정렬
     def sortPieces(self):
         self.pieces.sort(key=lambda x: x.location[2] * cubeSize * cubeSize + x.location[1] * cubeSize + x.location[0])
@@ -47,7 +44,10 @@ class Cube:
             if piece.location[axis.index(1)] == target:
                 piece.rotateLocation(axis, direction)
                 piece.rotateColorState(axis, direction)
-        print("Rotation - Axis:", axis, "Target:", target, "Direction,", direction)
+
+    # 큐브 역회전함수
+    def inverseRotate(self, axis, target, direction):
+        self.rotate(axis, target, -direction)
 
     # 큐브를 무작위로 섞는 함수
     def mixCube(self):
@@ -195,24 +195,44 @@ class PushButton(pygame.Rect):
 
 class AI:
     def __init__(self):
-        pass
+        self.virtualCube = Cube()
+        self.virtualCube.pieces = cube.pieces.copy()
 
     def selectRotation(self):
         # A* 알고리즘으로 먼저 구현해보자. 이후에 헤더파일로 떼어내자.
+        first = True
+        lowestCost = 0
+        bestRotation = 0
+        for axis in range(3):
+            for target in range(cubeSize):
+                for direction in [-1, 1]:
+                    rotation = [[1 if i == axis else 0 for i in range(3)], target, direction]
+                    self.virtualCube.rotate(*rotation)
+                    currentCost = self.calculateCost()
+                    if first:
+                        lowestCost = currentCost
+                        bestRotation = rotation
+                        first = False
+                    elif lowestCost > currentCost:
+                        lowestCost = currentCost
+                        bestRotation = rotation
+                    self.virtualCube.inverseRotate(*rotation)
 
-        # virtualPieces = pieces.copy()
-        #
-        # colorList = [RED, BLUE, WHITE, ORANGE, GREEN, YELLOW]
-        # planArray = getPlaneArray()
-        # unmatched = 0
-        # for i, plane in enumerate(planArray):
-        #     unmatched += len(plane) - plane.count(colorList[i])
-        # print(unmatched)
+        print("Best Rotation:", bestRotation)
+        print("Cost: %d" % lowestCost)
+        print("=" * 50)
+        return bestRotation
 
-        axis = [1, 0, 0]
-        target = 1
-        direction = 1
-        return axis, target, direction
+    def calculateCost(self):
+        rotation = 0
+
+        colorList = [RED, BLUE, WHITE, ORANGE, GREEN, YELLOW]
+        planArray = self.virtualCube.getPlaneArray()
+        unmatched = 0
+        for i, plane in enumerate(planArray):
+            unmatched += len(plane) - plane.count(colorList[i])
+
+        return rotation + unmatched
 
 
 # 사용자로부터 큐브의 초기상태를 입력받음
@@ -298,4 +318,4 @@ if __name__ == "__main__":
         rotationCountDisplay.show()
         rotationCountDisplay.addText("Rotate: %d" % rotationCount)
         pygame.display.update()
-        pygame.time.wait(500)
+        pygame.time.wait(1000)
