@@ -157,10 +157,13 @@ class Piece:
     # 회전 축과 평행한 요소는 고정, 나머지 요소들을 회전축이 원점이 오도록 이동, 회전변환 후 다시 원위치로 이동
     def rotateLocation(self, rotateAxis, direction):
         def rotate90Matrix(x, y, z):
-            newX = rotateAxis[0] * x + rotateAxis[1] * (direction * z) + rotateAxis[2] * (-direction * y)
-            newY = rotateAxis[0] * (-direction * z) + rotateAxis[1] * y + rotateAxis[2] * (direction * x)
-            newZ = rotateAxis[0] * (direction * y) + rotateAxis[1] * (-direction * x) + rotateAxis[2] * z
-            return [newX, newY, newZ]
+            if not direction:
+                return [x, y, z]
+            else:
+                newX = rotateAxis[0] * x + rotateAxis[1] * (direction * z) + rotateAxis[2] * (-direction * y)
+                newY = rotateAxis[0] * (-direction * z) + rotateAxis[1] * y + rotateAxis[2] * (direction * x)
+                newZ = rotateAxis[0] * (direction * y) + rotateAxis[1] * (-direction * x) + rotateAxis[2] * z
+                return [newX, newY, newZ]
 
         trans = (cubeSize - 1) / 2
         temp = list(map(lambda x: x - trans, self.location))
@@ -175,7 +178,7 @@ class Piece:
         axisFactor = [[i, j] for i, j in enumerate(self.colorState) if i % 3 == rotateAxis.index(1)]
         for i, factor in enumerate(axisFactor):
             del(temp[factor[0] - i])
-        temp = list(map(lambda x: temp[(x - direction + rotateAxis[1] * 2) % 4], range(4)))
+        temp = list(map(lambda x: temp[(x - direction * (rotateAxis[1] * -2 + 1)) % 4], range(4)))
         for factor in axisFactor:
             temp.insert(factor[0], factor[1])
         self.colorState = temp
@@ -208,15 +211,20 @@ class AI:
         self.virtualCube.pieces = cube.pieces.copy()
         self.path = []
 
+    # sortPieces 관련 재코딩 필요 - detPlaneArray 전에 쓰여야한다
     def selectRotation(self):
         # A* 알고리즘으로 먼저 구현해보자. 이후에 헤더파일로 떼어내자.
         self.path.append(self.virtualCube.getPlaneArray())
 
-        searched = self.searchPath(2)
+        lookahead = 1
+        totalBranch = pow(3 * cubeSize * 3, lookahead + 1)
+        print("Total branch: %d" % totalBranch)
+
+        searched = self.searchPath(lookahead)
 
         print("Best Rotation:", searched[1])
         print("Cost: %d" % searched[0])
-        print("=" * 50)
+        print("=" * 100)
         return searched[1]
 
     def searchPath(self, lookahead):
@@ -224,7 +232,7 @@ class AI:
         bestRotation = 0
         for axis in range(3):
             for target in range(cubeSize):
-                for direction in [-1, 1]:
+                for direction in [-1, 0, 1]:
                     rotation = [[1 if i == axis else 0 for i in range(3)], target, direction]
                     self.virtualCube.rotate(*rotation)
                     if self.virtualCube.getPlaneArray() in self.path:
@@ -233,6 +241,8 @@ class AI:
 
                     if not lookahead:
                         currentCost = self.calculateCost()
+                        print("branch cost: %d" % currentCost)
+
                     else:
                         currentCost = self.searchPath(lookahead - 1)[0]
 
